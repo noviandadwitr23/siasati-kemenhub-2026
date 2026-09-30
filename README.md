@@ -8,51 +8,90 @@
 ---
 
 ## 📌 Ringkasan Proyek
-Dashboard interaktif ini dibangun untuk memvisualisasikan, menganalisis, dan memantau mobilitas pergerakan penumpang nasional di 5 moda transportasi utama di seluruh Indonesia secara komprehensif.
+Aplikasi analitik & visualisasi data komprehensif untuk memantau mobilitas pergerakan penumpang nasional di 5 moda transportasi utama (Bus AKAP, ASDP/Penyeberangan, Kereta Api, Laut, dan Udara) di seluruh Indonesia.
 
-Aplikasi web ini dilengkapi dengan **Filter Rentang Tanggal Harian**, **Multi-Slicer Moda Transportasi**, dan **Peta Spasial Geografis (GIS)** berkoordinat presisi.
+Dibangun dengan pipeline data Python (ETL & Aggregation) dan frontend interaktif modern (Tailwind CSS, Leaflet GIS, & Chart.js).
 
 ---
 
-## ✨ Fitur Utama
+## 📂 Struktur Repositori & Kode Sumber
+
+```text
+siasati-kemenhub-2026/
+├── index.html                    # Web App Dashboard Interaktif Utama (Production / GitHub Pages)
+├── generate_dashboard.py         # [SYNTAX PYTHON] Menggabungkan data analitik ke template web
+├── process_data.py               # [SYNTAX PYTHON] Pipeline ETL: Pembersihan data, deduplikasi & agregasi
+├── data/
+│   └── mobility_data_bundle.json # Bundle analitik terkompilasi (Timeline harian, spasial, KPI)
+├── templates/
+│   └── dashboard_template.html   # Template antarmuka web (Tailwind, Leaflet, Slicers, Chart.js)
+├── .gitignore                    # Berkas filter git
+└── README.md                     # Dokumentasi lengkap proyek
+```
+
+---
+
+## 🐍 Sintaks & Pipeline Python
+
+Pipeline pemrosesan dan pembuatan dashboard terdiri dari 2 script Python utama:
+
+### 1. `process_data.py` (ETL & Analisis Agregasi)
+Script ini bertugas memproses dataset mentah multimoda (`siasati_multimoda_2026.csv`):
+* **Pembersihan Data:**
+  * Menghapus duplikat identik (*keep first*).
+  * Mengagregasikan (*sum*) duplikat yang memiliki ID prasarana, moda, dan tanggal sama namun metrik berbeda.
+  * Menangani koordinat kosong (*empty lat-lon*).
+* **Agregasi Metrik:**
+  * Timeline harian 272 hari per moda transportasi.
+  * Agregasi bulanan & pangsa pasar (*modal share*).
+  * Analisis operasional puncak Mudik & Balik Lebaran (H-8 s/d H+15).
+  * Analisis rasio beban armada (*load factor proxy*).
+  * Pemetaan spasial 1.200+ simpul prasarana dengan koordinat presisi.
+* **Output:** Menyimpan hasil kompilasi ke `data/mobility_data_bundle.json`.
+
+```bash
+# Menjalankan pembersihan dan kompilasi data
+python process_data.py
+```
+
+### 2. `generate_dashboard.py` (Web Generator)
+Script ini menggabungkan `data/mobility_data_bundle.json` dengan template interaktif `templates/dashboard_template.html` untuk memproduksi `index.html` yang mandiri (*standalone*), tanpa memerlukan backend server saat di-hosting di GitHub Pages.
+
+```bash
+# Menghasilkan index.html produksi
+python generate_dashboard.py
+```
+
+---
+
+## ✨ Fitur Antarmuka Dashboard
 
 1. **🗓️ Date Range Filter & Quick Presets:**
    - Filter tanggal dinamis (`Start Date` s/d `End Date`).
-   - Tombol instan preset: *All Time*, *7 Hari Terakhir*, *30 Hari Terakhir*, *Periode Puncak (Peak Season)*.
+   - Tombol instan preset: *All Time*, *7 Hari Terakhir*, *30 Hari Terakhir*, *Periode Puncak Lebaran*.
 2. **🎛️ Multi-Slicer Moda Transportasi:**
    - 🚌 Bus (Terminal Tipe A)
    - ⛴️ ASDP (Pelabuhan Penyeberangan)
    - 🚆 Kereta Api (Stasiun KA Nasional)
    - 🚢 Laut (Pelabuhan Laut Domestik)
    - ✈️ Udara (Bandar Udara Nasional)
-3. **🗺️ Peta Interaktif GIS (Leaflet):**
-   - Pemetaan marker koordinat simpul transportasi di seluruh wilayah Indonesia.
+3. **🗺️ Peta Spasial Geografis (Leaflet GIS):**
+   - Pemetaan 1.200+ simpul transportasi nasional berkoordinat presisi.
    - Popup interaktif metrik volume keberangkatan dan kedatangan penumpang.
 4. **📊 Visualisasi Tren & Metrik KPI:**
    - Kartu metrik total keberangkatan, kedatangan, pergerakan total, dan rata-rata harian.
    - Grafik tren volume mobilitas harian (Chart.js) yang reaktif terhadap filter tanggal dan moda.
    - Komparasi simpul terpadat nasional (Top Hubs).
-5. **⚡ Standalone & High Performance:**
-   - Single-page application tanpa backend server, siap di-hosting langsung via **GitHub Pages**.
 
 ---
 
 ## 🛠️ Teknologi yang Digunakan
+- **Data Engineering:** Python 3, Pandas, NumPy
 - **Frontend Core:** HTML5, Modern Vanilla JavaScript (ES6+)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **GIS Mapping:** [Leaflet.js](https://leafletjs.com/) & OpenStreetMap Tiles
 - **Data Visualization:** [Chart.js](https://www.chartjs.org/)
-- **Typography:** Google Fonts (*Plus Jakarta Sans* & *JetBrains Mono*)
 - **Hosting / Deployment:** GitHub Pages
-
----
-
-## 📂 Struktur Repositori
-```text
-siasati-kemenhub-2026/
-├── index.html          # Web App Dashboard Interaktif Utama
-└── README.md           # Dokumentasi Lengkap Proyek
-```
 
 ---
 
